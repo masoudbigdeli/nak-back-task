@@ -5,6 +5,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors()
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
 
   // Swagger setup
@@ -18,9 +19,9 @@ async function bootstrap() {
     )
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
-
-  await app.listen(3000);
-  console.log('Server running on http://localhost:3000');
+  SwaggerModule.setup('api', app, document);
+  const port = parseInt(process.env.PORT!, 10) || 3000
+  await app.listen(port);
+  console.log(`Server running on http://localhost:${port}`)
 }
 bootstrap();
