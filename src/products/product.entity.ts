@@ -17,6 +17,6 @@ export class Product {
   @JoinTable()
   skus: SKU[];
 
-  @Column('jsonb')
+  @Column('simple-json')
   attributes: { name: string; values: string[] }[];
 }
