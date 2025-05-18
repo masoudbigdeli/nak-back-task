@@ -4,8 +4,10 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { JwtAuthGuard } from 'src/common/jwt.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('products')
+@ApiBearerAuth('access-token') 
 @UseGuards(JwtAuthGuard)
 export class ProductsController {
   constructor(private readonly prodService: ProductsService) {}

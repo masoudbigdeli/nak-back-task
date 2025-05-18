@@ -1,3 +1,10 @@
 {
-    "port": 3003
+  "platform": "node",
+  "port": 3000,
+  "build": {
+    "builder": "npm",
+    "installCommand": "npm install",
+    "buildCommand": "npm run build"
+  },
+  "startCommand": "npm run start:prod"
 }

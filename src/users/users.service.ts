@@ -28,6 +28,7 @@ export class UsersService {
 
   /** List all users (excluding passwords) */
   async findAll(): Promise<Omit<User, 'password'>[]> {
+    console.log('req is here')
     const users = await this.usersRepo.find();
     return users.map(({ password, ...u }) => u);
   }
