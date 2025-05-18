@@ -10,7 +10,7 @@ export class SkusService {
   constructor(
     @InjectRepository(SKU)
     private readonly skuRepo: Repository<SKU>,
-  ) {}
+  ) { }
 
   async createMany(dtos: CreateSkuDto[]): Promise<string[]> {
     const skus = this.skuRepo.create(dtos);
@@ -21,11 +21,21 @@ export class SkusService {
   async updateMany(dtos: { id: string; data: UpdateSkuDto }[]): Promise<SKU[]> {
     const results: SKU[] = [];
     for (const { id, data } of dtos) {
-      const sku = await this.skuRepo.findOne({ where: { id } });
+      const sku = await this.skuRepo.findOneBy({ id });
       if (!sku) throw new NotFoundException(`SKU ${id} not found`);
       Object.assign(sku, data);
       results.push(await this.skuRepo.save(sku));
     }
     return results;
+  }
+
+  // List all SKUs
+  async findAll(): Promise<SKU[]> {
+    return this.skuRepo.find();
+  }
+
+  // Get a single SKU by id
+  async findOne(id: string): Promise<SKU> {
+    return this.skuRepo.findOneOrFail({ where: { id } });
   }
 }
