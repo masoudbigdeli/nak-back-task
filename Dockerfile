@@ -20,6 +20,9 @@ RUN npm run build
 FROM node:18-alpine
 WORKDIR /app
 
+# Ensure the data directory exists for SQLite
+RUN mkdir -p data
+
 # Set production environment
 ENV NODE_ENV=production              
 # smaller footprint, optimizations enabled :contentReference[oaicite:2]{index=2}
