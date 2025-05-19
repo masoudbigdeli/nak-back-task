@@ -1,29 +1,36 @@
-import { Controller, Post, Body, Patch, UseGuards, Get, Param } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiBody } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+  Get,
+} from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+
 import { SkusService } from './skus.service';
 import { CreateSkuDto } from './dto/create-sku.dto';
 import { UpdateSkuDto } from './dto/update-sku.dto';
 import { JwtAuthGuard } from 'src/common/jwt.guard';
 
 @ApiTags('skus')
-@ApiBearerAuth('access-token')
 @Controller('skus')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth('access-token')
 export class SkusController {
-  constructor(private readonly skusService: SkusService) { }
+  constructor(private readonly skusService: SkusService) {}
 
-  @Post('batch')
-  @ApiOperation({ summary: 'Create multiple SKUs' })
-  @ApiBody({ type: [CreateSkuDto] })
-  createBatch(@Body() dtos: CreateSkuDto[]) {
-    return this.skusService.createMany(dtos);
+  @Post()
+  @ApiOperation({ summary: 'Create a new SKU' })
+  create(@Body() dto: CreateSkuDto) {
+    return this.skusService.create(dto);
   }
 
-  @Patch('batch')
-  @ApiOperation({ summary: 'Update multiple SKUs' })
-  @ApiBody({ schema: { type: 'array', items: { type: 'object', properties: { id: { type: 'string' }, data: { $ref: '#/components/schemas/UpdateSkuDto' } } } } })
-  updateBatch(@Body() dtos: { id: string; data: UpdateSkuDto }[]) {
-    return this.skusService.updateMany(dtos);
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update an existing SKU' })
+  update(@Param('id') id: string, @Body() dto: UpdateSkuDto) {
+    return this.skusService.update(id, dto);
   }
 
   @Get()

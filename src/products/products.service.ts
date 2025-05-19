@@ -1,50 +1,81 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Product } from './product.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+
+import { Product, ProductDocument } from './schemas/product.schema';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { User } from 'src/users/user.entity';
-import { SKU } from 'src/skus/sku.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectRepository(Product)
-    private readonly prodRepo: Repository<Product>,
-  ) {}
+    @InjectModel(Product.name) private readonly prodModel: Model<ProductDocument>,
+  ) { }
 
   async create(userId: string, dto: CreateProductDto): Promise<Product> {
-    const prod = this.prodRepo.create({
+    const created = new this.prodModel({
       name: dto.name,
-      user: { id: userId } as User,
-      skus: dto.skusIds.map(id => ({ id } as SKU)),
+      user: new Types.ObjectId(userId),
+      skus: dto.skusIds.map(id => new Types.ObjectId(id)),
       attributes: dto.attributes,
     });
-    return this.prodRepo.save(prod);
+    return created.save();
   }
 
-  async update(id: string, userId: string, dto: UpdateProductDto): Promise<Product> {
-    const prod = await this.prodRepo.findOne({ where: { id, user: { id: userId } as any } });
-    if (!prod) throw new NotFoundException('Product not found');
-    if (dto.name) prod.name = dto.name;
-    if (dto.skusIds) prod.skus = dto.skusIds.map(i => ({ id: i } as SKU));
-    if (dto.attributes) prod.attributes = dto.attributes;
-    return this.prodRepo.save(prod);
+  async update(
+    id: string,
+    userId: string,
+    dto: UpdateProductDto,
+  ): Promise<Product> {
+    const updated = await this.prodModel
+      .findOneAndUpdate(
+        { _id: id, user: userId },
+        {
+          ...(dto.name && { name: dto.name }),
+          ...(dto.skusIds && {
+            skus: dto.skusIds.map(i => new Types.ObjectId(i)),
+          }),
+          ...(dto.attributes && { attributes: dto.attributes }),
+        },
+        { new: true },
+      )
+      .exec();
+    if (!updated) throw new NotFoundException('Product not found');
+    return updated;
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    const res = await this.prodRepo.delete({ id, user: { id: userId } as any });
-    if (res.affected === 0) throw new NotFoundException('Product not found');
+    const res = await this.prodModel
+      .deleteOne({ _id: id, user: userId })
+      .exec();
+    if (res.deletedCount === 0) throw new NotFoundException('Product not found');
   }
 
-  async paginate(userId: string, page: number, perPage: number) {
-    const [items, total] = await this.prodRepo.findAndCount({
-      where: { user: { id: userId } as any },
-      skip: (page - 1) * perPage,
-      take: perPage,
-      relations: ['skus'],
-    });
+  async findOne(id: string, userId: string): Promise<Product> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Product not found');
+    }
+    const product = await this.prodModel
+      .findOne({ _id: id, user: new Types.ObjectId(userId) })
+      .exec();
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+    return product;
+  }
+
+  async paginate(
+    userId: string,
+    page: number,
+    perPage: number,
+  ): Promise<{ items: Product[]; total: number; page: number; perPage: number }> {
+    const filter = { user: userId };
+    const total = await this.prodModel.countDocuments(filter).exec();
+    const items = await this.prodModel
+      .find(filter)
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .exec();
     return { items, total, page, perPage };
   }
 }

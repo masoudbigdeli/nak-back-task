@@ -1,17 +1,7 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Request, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiBody, ApiOperation, ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
-
-class LoginDto {
-  @ApiProperty({ example: 'jdoe' })
-  @IsString()
-  userName: string;
-
-  @ApiProperty({ example: 'secret123' })
-  @IsString()
-  password: string;
-}
+import { JwtAuthGuard } from 'src/common/jwt.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -19,9 +9,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @ApiOperation({ summary: 'Authenticate user and return JWT' })
-  @ApiBody({ type: LoginDto })
-  async login(@Body() dto: LoginDto) {
-    return this.authService.login(await this.authService.validateUser(dto.userName, dto.password));
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Log in and receive a JWT' })
+  async login(@Request() req) {
+    return this.authService.login(req.user);
   }
 }

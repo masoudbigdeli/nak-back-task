@@ -1,33 +1,31 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Attribute } from './attribute.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+
+import { Attribute, AttributeDocument } from './schemas/attribute.schema';
 import { CreateAttributeDto } from './dto/create-attribute.dto';
-import { User } from '../users/user.entity';
 
 @Injectable()
 export class AttributesService {
   constructor(
-    @InjectRepository(Attribute)
-    private readonly attrRepo: Repository<Attribute>,
-  ) { }
+    @InjectModel(Attribute.name) private readonly attrModel: Model<AttributeDocument>,
+  ) {}
 
   async create(userId: string, dto: CreateAttributeDto): Promise<Attribute> {
-    const attr = this.attrRepo.create({ ...dto, user: { id: userId } as User });
-    return this.attrRepo.save(attr);
+    const created = new this.attrModel({
+      ...dto,
+      user: new Types.ObjectId(userId),
+    });
+    return created.save();
   }
 
-  // List all attributes for a given user
   async findAll(userId: string): Promise<Attribute[]> {
-    return this.attrRepo.find({
-      where: { user: { id: userId } as any },
-    });
+    return this.attrModel.find({ user: userId }).exec();
   }
 
-  // Get a single attribute by id (and ensure it belongs to the user)
   async findOne(id: string, userId: string): Promise<Attribute> {
-    return this.attrRepo.findOneOrFail({
-      where: { id, user: { id: userId } as any },
-    });
+    const attr = await this.attrModel.findOne({ _id: id, user: userId }).exec();
+    if (!attr) throw new NotFoundException('Attribute not found');
+    return attr;
   }
 }
