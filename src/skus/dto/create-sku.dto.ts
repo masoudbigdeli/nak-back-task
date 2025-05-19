@@ -1,6 +1,7 @@
 import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
+// test comment
 export class CreateSkuDto {
   @ApiProperty({ example: 'A1' })
   @IsString()
