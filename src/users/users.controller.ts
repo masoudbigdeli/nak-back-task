@@ -8,11 +8,12 @@ import { JwtAuthGuard } from 'src/common/jwt.guard';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
   create(@Body() dto: CreateUserDto) {
+    console.log('creating new user')
     return this.usersService.create(dto);
   }
 

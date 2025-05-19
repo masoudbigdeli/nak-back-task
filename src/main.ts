@@ -5,12 +5,12 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors()
+  // app.enableCors()
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
 
   // Swagger setup
   const config = new DocumentBuilder()
-    .setTitle('NestJS SQLite API')
+    .setTitle('NestJS MongoDB API')
     .setDescription('API documentation')
     .setVersion('1.0')
     .addBearerAuth(

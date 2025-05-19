@@ -15,6 +15,7 @@ export class AttributesController {
   @Post()
   @ApiOperation({ summary: 'Create a new attribute' })
   create(@Request() req, @Body() dto: CreateAttributeDto) {
+    console.log('creating attribute')
     return this.attrService.create(req.user.userId, dto);
   }
 
