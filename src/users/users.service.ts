@@ -25,7 +25,6 @@ export class UsersService {
       .select('-password')
       .exec();
 
-    // now each u.toObject() has no `password` key at all:
     return users.map(u => u.toObject() as Omit<User, 'password'>);
   }
 

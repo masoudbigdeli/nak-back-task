@@ -15,7 +15,6 @@ export class SKU {
     @Prop({ required: true })
     numberInStock: string;
 
-    // ← New: who created this SKU
     @Prop({ type: Types.ObjectId, ref: User.name, required: true })
     user: Types.ObjectId;
 }

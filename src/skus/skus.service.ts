@@ -20,7 +20,6 @@ export class SkusService {
     return created.save();
   }
 
-  /** Update only if this user created it */
   async update(id: string, userId: string, dto: UpdateSkuDto): Promise<SKU> {
     const uid = new Types.ObjectId(userId);
     const skuId = new Types.ObjectId(id);

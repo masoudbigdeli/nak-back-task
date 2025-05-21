@@ -53,7 +53,7 @@ export class ProductsController {
   @ApiQuery({ name: 'perPage', type: Number, example: 10, description: 'Items per page' })
   paginate(
     @Request() req,
-    @Query() query: PaginationDto,  // <-- DTO instance will be created & validated
+    @Query() query: PaginationDto,  
   ) {
     return this.prodService.paginate(
       req.user.userId,
