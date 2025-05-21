@@ -17,19 +17,19 @@ export class UsersController {
     return this.usersService.create(dto);
   }
 
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'List all users' })
-  findAll() {
-    return this.usersService.findAll();
-  }
+  // @Get()
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth('access-token')
+  // @ApiOperation({ summary: 'List all users' })
+  // findAll() {
+  //   return this.usersService.findAll();
+  // }
 
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Get a single user by ID' })
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
-  }
+  // @Get(':id')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth('access-token')
+  // @ApiOperation({ summary: 'Get a single user by ID' })
+  // findOne(@Param('id') id: string) {
+  //   return this.usersService.findOne(id);
+  // }
 }

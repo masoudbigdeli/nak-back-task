@@ -22,9 +22,11 @@ export class SkusService {
 
   /** Update only if this user created it */
   async update(id: string, userId: string, dto: UpdateSkuDto): Promise<SKU> {
+    const uid = new Types.ObjectId(userId);
+    const skuId = new Types.ObjectId(id);
     const updated = await this.skuModel
       .findOneAndUpdate(
-        { _id: id, user: userId },
+        { _id: skuId, user: uid },
         dto,
         { new: true },
       )
@@ -46,7 +48,7 @@ export class SkusService {
   /** Fetch one SKU by id, only if it belongs to this user */
   async findOne(id: string, userId: string): Promise<SKU> {
     const uid = new Types.ObjectId(userId);
-    const skuId = new Types.ObjectId(userId);
+    const skuId = new Types.ObjectId(id);
 
     const sku = await this.skuModel
       .findOne({ _id: skuId, user: uid })

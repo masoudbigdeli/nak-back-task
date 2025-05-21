@@ -27,9 +27,11 @@ export class ProductsService {
     userId: string,
     dto: UpdateProductDto,
   ): Promise<Product> {
+    const uid = new Types.ObjectId(userId);
+    const productId = new Types.ObjectId(id);
     const updated = await this.prodModel
       .findOneAndUpdate(
-        { _id: id, user: userId },
+        { _id: productId, user: uid },
         {
           ...(dto.name && { name: dto.name }),
           ...(dto.skusIds && {
@@ -45,18 +47,22 @@ export class ProductsService {
   }
 
   async remove(id: string, userId: string): Promise<void> {
+    const uid = new Types.ObjectId(userId);
+    const productId = new Types.ObjectId(id);
     const res = await this.prodModel
-      .deleteOne({ _id: id, user: userId })
+      .deleteOne({ _id: productId, user: uid })
       .exec();
     if (res.deletedCount === 0) throw new NotFoundException('Product not found');
   }
 
   async findOne(id: string, userId: string): Promise<Product> {
+    const uid = new Types.ObjectId(userId);
+    const productId = new Types.ObjectId(id);
     if (!Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Product not found');
     }
     const product = await this.prodModel
-      .findOne({ _id: id, user: new Types.ObjectId(userId) })
+      .findOne({ _id: productId, user: uid })
       .exec();
     if (!product) {
       throw new NotFoundException('Product not found');
@@ -69,7 +75,9 @@ export class ProductsService {
     page: number,
     perPage: number,
   ): Promise<{ items: Product[]; total: number; page: number; perPage: number }> {
-    const filter = { user: userId };
+    const uid = new Types.ObjectId(userId);
+
+    const filter = { user: uid };
     const total = await this.prodModel.countDocuments(filter).exec();
     const items = await this.prodModel
       .find(filter)
